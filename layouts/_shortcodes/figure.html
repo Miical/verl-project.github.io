@@ -1,0 +1,9 @@
+{{- /*
+  Figure with an optional caption and width cap.
+  Usage: {{< figure src="throughput.png" alt="..." caption="..." width="70%" >}}
+*/ -}}
+{{- $url := partial "image-url.html" (dict "page" .Page "src" (.Get "src")) -}}
+<figure class="fig"{{ with .Get "width" }} style="max-width:{{ . }}"{{ end }}>
+  <img src="{{ $url }}" alt="{{ .Get "alt" | default (.Get "caption") }}" loading="lazy" decoding="async">
+  {{- with .Get "caption" }}<figcaption>{{ . | markdownify }}</figcaption>{{ end }}
+</figure>

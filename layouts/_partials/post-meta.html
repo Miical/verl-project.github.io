@@ -1,0 +1,21 @@
+{{- /* Call with a page as the context: {{ partial "post-meta.html" . }} */ -}}
+<div class="post-meta">
+  <time datetime="{{ .Date.Format "2006-01-02" }}">
+    {{ partial "icon.html" "calendar" }}{{ .Date.Format site.Params.dateFormat }}
+  </time>
+
+  {{- with .Params.authors }}
+  <span class="meta-authors">
+    {{ partial "icon.html" "users" }}
+    {{- range $i, $a := . }}{{ if $i }}, {{ end -}}
+      <a href="{{ (printf "authors/%s" ($a | urlize)) | relURL }}">{{ $a }}</a>
+    {{- end }}
+  </span>
+  {{- end }}
+
+  {{- if .IsPage }}
+  <span class="meta-reading">
+    {{ partial "icon.html" "clock" }}{{ .ReadingTime }} min read
+  </span>
+  {{- end }}
+</div>

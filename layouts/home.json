@@ -1,0 +1,15 @@
+{{- /* Search index consumed by _partials/search.html. Posts only. */ -}}
+{{- $index := slice -}}
+{{- range where site.RegularPages "Section" "posts" -}}
+  {{- $summary := "" -}}
+  {{- with .Params.summary }}{{ $summary = . }}{{ else }}{{ $summary = .Summary | plainify }}{{ end -}}
+  {{- $index = $index | append (dict
+      "title" .Title
+      "url" .RelPermalink
+      "date" (.Date.Format site.Params.dateFormat)
+      "summary" $summary
+      "tags" (.Params.tags | default slice)
+      "body" (truncate 3000 "" .Plain)
+  ) -}}
+{{- end -}}
+{{- $index | jsonify -}}

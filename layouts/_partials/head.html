@@ -1,0 +1,85 @@
+{{- $title := cond .IsHome site.Title (printf "%s | %s" .Title site.Title) -}}
+{{- $description := "" -}}
+{{- with .Params.summary }}{{ $description = . }}
+{{- else }}{{ with .Description }}{{ $description = . }}
+{{- else }}{{ $description = site.Params.description }}{{ end }}{{ end -}}
+
+{{- /* Only pages with a cover of their own get a preview image. */ -}}
+{{- $image := "" -}}
+{{- with .Params.image -}}
+  {{- $image = partial "image-url.html" (dict "page" $ "src" .) -}}
+{{- end -}}
+{{- if and $image (not (hasPrefix $image "http")) -}}{{- $image = $image | absURL -}}{{- end -}}
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ $title }}</title>
+  <meta name="description" content="{{ $description }}">
+  <link rel="canonical" href="{{ .Permalink }}">
+
+  <meta property="og:type" content="{{ cond .IsPage "article" "website" }}">
+  <meta property="og:site_name" content="{{ site.Title }}">
+  <meta property="og:title" content="{{ cond .IsHome site.Title .Title }}">
+  <meta property="og:description" content="{{ $description }}">
+  <meta property="og:url" content="{{ .Permalink }}">
+  {{- with $image }}
+  <meta property="og:image" content="{{ . }}">
+  {{- end }}
+  {{- if .IsPage }}
+  <meta property="article:published_time" content="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">
+  {{- range .Params.authors }}
+  <meta property="article:author" content="{{ . }}">
+  {{- end }}
+  {{- end }}
+  <meta name="twitter:card" content="{{ cond (ne $image "") "summary_large_image" "summary" }}">
+  <meta name="twitter:title" content="{{ cond .IsHome site.Title .Title }}">
+  <meta name="twitter:description" content="{{ $description }}">
+  {{- with $image }}
+  <meta name="twitter:image" content="{{ . }}">
+  {{- end }}
+
+  {{- with .OutputFormats.Get "rss" }}
+  <link rel="alternate" type="application/rss+xml" href="{{ .Permalink }}" title="{{ site.Title }}">
+  {{- end }}
+  <link rel="icon" href="{{ "favicon.svg" | relURL }}" type="image/svg+xml">
+
+  {{- $main := resources.Get "css/main.css" | resources.Minify | resources.Fingerprint }}
+  <link rel="stylesheet" href="{{ $main.RelPermalink }}" integrity="{{ $main.Data.Integrity }}">
+  {{- $syntax := resources.Get "css/syntax.css" | resources.Minify | resources.Fingerprint }}
+  <link rel="stylesheet" href="{{ $syntax.RelPermalink }}" integrity="{{ $syntax.Data.Integrity }}">
+
+  {{- if .Params.math }}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"
+    onload="renderMathInElement(document.body, {delimiters:[{left:'$$',right:'$$',display:true},{left:'\\[',right:'\\]',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+  {{- end }}
+
+  {{/* Applied before first paint so a dark-mode reader never sees a white flash. */}}
+  <script>
+    (function () {
+      var stored = null;
+      try { stored = localStorage.getItem("theme"); } catch (e) {}
+      var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    })();
+  </script>
+
+  {{- if .IsPage }}
+  <script type="application/ld+json">
+    {{ dict
+      "@context" "https://schema.org"
+      "@type" "BlogPosting"
+      "headline" .Title
+      "description" $description
+      "image" $image
+      "datePublished" (.Date.Format "2006-01-02")
+      "author" (dict "@type" "Organization" "name" (cond (isset .Params "authors") (delimit (.Params.authors | default slice) ", ") "verl-project"))
+      "publisher" (dict "@type" "Organization" "name" "verl-project")
+      "mainEntityOfPage" .Permalink
+      | jsonify (dict "indent" "  ")
+    | safeJS }}
+  </script>
+  {{- end }}
+</head>

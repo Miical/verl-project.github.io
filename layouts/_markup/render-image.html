@@ -1,0 +1,6 @@
+{{- /* Plain markdown images become responsive figures; alt text turns into the caption. */ -}}
+{{- $url := partial "image-url.html" (dict "page" .Page "src" .Destination) -}}
+<figure class="fig">
+  <img src="{{ $url }}" alt="{{ .Text }}"{{ with .Title }} title="{{ . }}"{{ end }} loading="lazy" decoding="async">
+  {{- with .Text }}<figcaption>{{ . }}</figcaption>{{ end }}
+</figure>

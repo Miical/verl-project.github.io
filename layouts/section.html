@@ -1,0 +1,14 @@
+{{ define "main" }}
+<div class="wrap">
+  <header class="page-head">
+    <h1>{{ .Title }}</h1>
+    {{- with .Content }}<div class="page-lede">{{ . }}</div>{{ end }}
+  </header>
+
+  {{- $paginator := .Paginate .RegularPagesRecursive }}
+  <div class="card-grid">
+    {{- range $paginator.Pages }}{{ partial "post-card.html" . }}{{ end }}
+  </div>
+  {{ partial "pagination.html" . }}
+</div>
+{{ end }}

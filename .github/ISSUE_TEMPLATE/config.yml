@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: verl bugs and feature requests
+    url: https://github.com/verl-project/verl/issues
+    about: This repository is only the blog. Issues about verl itself belong in the main repository.
+  - name: How to write for the blog
+    url: https://verl-project.github.io/contribute/
+    about: The submission guide, front matter reference and house style.

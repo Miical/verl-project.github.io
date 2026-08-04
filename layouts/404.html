@@ -1,0 +1,12 @@
+{{ define "main" }}
+<div class="wrap-narrow empty-state">
+  <p class="page-eyebrow">404</p>
+  <h1>Page not found</h1>
+  <p>The URL you followed does not match anything on this site. It may have been renamed,
+    or the link may simply be wrong.</p>
+  <p class="btn-row">
+    <a class="btn btn-primary" href="{{ "posts/" | relURL }}">Browse all posts</a>
+    <a class="btn" href="{{ "/" | relURL }}">Go home</a>
+  </p>
+</div>
+{{ end }}

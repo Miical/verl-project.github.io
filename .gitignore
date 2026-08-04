@@ -1,0 +1,11 @@
+# Hugo build output and caches
+/public/
+/resources/_gen/
+/.hugo_build.lock
+hugo_stats.json
+
+# Local editor and OS noise
+.DS_Store
+.idea/
+.vscode/
+*.swp

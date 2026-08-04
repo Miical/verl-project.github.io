@@ -1,0 +1,9 @@
+{{ define "main" }}
+<div class="wrap-narrow">
+  <header class="page-head">
+    <h1>{{ .Title }}</h1>
+    {{- with .Params.summary }}<p class="page-lede">{{ . }}</p>{{ end }}
+  </header>
+  <div class="post-content">{{ .Content }}</div>
+</div>
+{{ end }}

@@ -1,0 +1,54 @@
+name: Blog post proposal
+description: Pitch a post before you write it.
+title: "[Post] "
+labels: ["blog post"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Pitching before you write lets a maintainer tell you whether the topic
+        fits and whether somebody is already on it, which is a lot cheaper than
+        finding out once the draft is done.
+
+  - type: input
+    id: working-title
+    attributes:
+      label: Working title
+      placeholder: "Async rollout in verl"
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: What is the post about?
+      description: A few sentences. What did you build or measure, and what should a reader take away?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind of post
+      options:
+        - Feature deep dive
+        - Performance work
+        - Recipe or case study
+        - Release deep dive
+        - Something else
+    validations:
+      required: true
+
+  - type: input
+    id: work
+    attributes:
+      label: Link to the work
+      description: The pull request, issue or recipe this describes, if there is one.
+      placeholder: "https://github.com/verl-project/verl/pull/..."
+
+  - type: input
+    id: timing
+    attributes:
+      label: Timing
+      description: Does this need to land alongside a release or an announcement?
+      placeholder: "No constraint / with v0.9 / embargoed until 2026-09-01"

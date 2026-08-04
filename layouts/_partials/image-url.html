@@ -1,0 +1,32 @@
+{{- /*
+  Resolve an image reference to a URL, resizing it when it is a page resource.
+
+  Call with a dict: {{ partial "image-url.html" (dict "page" $page "src" "cover.png" "spec" "1400x webp q85") }}
+
+  A page-bundle resource is resized and converted to WebP; anything else (an
+  absolute path under static/, or a remote URL) is passed through untouched.
+  SVGs are never resized because they have no raster dimensions.
+*/ -}}
+{{- $page := .page -}}
+{{- $src := .src -}}
+{{- $spec := .spec | default "1400x webp q85" -}}
+{{- $url := "" -}}
+
+{{- if $src -}}
+  {{- if or (hasPrefix $src "http://") (hasPrefix $src "https://") -}}
+    {{- $url = $src -}}
+  {{- else -}}
+    {{- $res := $page.Resources.GetMatch $src -}}
+    {{- if $res -}}
+      {{- if eq $res.MediaType.SubType "svg" -}}
+        {{- $url = $res.RelPermalink -}}
+      {{- else -}}
+        {{- $url = ($res.Resize $spec).RelPermalink -}}
+      {{- end -}}
+    {{- else -}}
+      {{- $url = $src | relURL -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- return $url -}}

@@ -1,0 +1,142 @@
+<div class="site-search" data-search data-endpoint="{{ "index.json" | relURL }}">
+  <input class="search-input" type="search" placeholder="Search posts" autocomplete="off" spellcheck="false"
+         aria-label="Search posts" role="combobox" aria-expanded="false" aria-controls="search-results">
+  <div class="search-results" id="search-results" role="listbox" aria-label="Search results" hidden></div>
+</div>
+
+<script>
+(function () {
+  var root = document.querySelector("[data-search]");
+  if (!root) return;
+
+  var input = root.querySelector(".search-input");
+  var panel = root.querySelector(".search-results");
+  var docs = null;
+  var pending = null;
+  var hits = [];
+  var active = -1;
+
+  function load() {
+    if (docs) return Promise.resolve(docs);
+    if (!pending) {
+      pending = fetch(root.dataset.endpoint)
+        .then(function (r) { return r.json(); })
+        .then(function (raw) {
+          docs = raw.map(function (d) {
+            return {
+              title: d.title, url: d.url, summary: d.summary, date: d.date,
+              haystack: {
+                title: d.title.toLowerCase(),
+                tags: (d.tags || []).join(" ").toLowerCase(),
+                summary: (d.summary || "").toLowerCase(),
+                body: (d.body || "").toLowerCase()
+              }
+            };
+          });
+          return docs;
+        })
+        .catch(function () { docs = []; return docs; });
+    }
+    return pending;
+  }
+
+  /* Every term has to match somewhere; where it matches decides the ranking. */
+  function score(doc, terms) {
+    var total = 0;
+    for (var i = 0; i < terms.length; i++) {
+      var t = terms[i];
+      var s = 0;
+      if (doc.haystack.title.indexOf(t) > -1) s += 8;
+      if (doc.haystack.tags.indexOf(t) > -1) s += 5;
+      if (doc.haystack.summary.indexOf(t) > -1) s += 3;
+      if (doc.haystack.body.indexOf(t) > -1) s += 1;
+      if (!s) return 0;
+      total += s;
+    }
+    return total;
+  }
+
+  function close() {
+    panel.hidden = true;
+    input.setAttribute("aria-expanded", "false");
+    active = -1;
+  }
+
+  function note(text) {
+    panel.replaceChildren();
+    var p = document.createElement("p");
+    p.className = "search-note";
+    p.textContent = text;
+    panel.appendChild(p);
+    panel.hidden = false;
+    input.setAttribute("aria-expanded", "true");
+  }
+
+  function render(results) {
+    panel.replaceChildren();
+    hits = [];
+    results.forEach(function (doc) {
+      var a = document.createElement("a");
+      a.className = "search-hit";
+      a.href = doc.url;
+      a.setAttribute("role", "option");
+      var b = document.createElement("b");
+      b.textContent = doc.title;
+      var s = document.createElement("span");
+      s.textContent = doc.summary;
+      a.append(b, s);
+      panel.appendChild(a);
+      hits.push(a);
+    });
+    active = -1;
+    panel.hidden = false;
+    input.setAttribute("aria-expanded", "true");
+  }
+
+  function run() {
+    var q = input.value.trim().toLowerCase();
+    if (q.length < 2) { close(); return; }
+    load().then(function (all) {
+      if (input.value.trim().toLowerCase() !== q) return;
+      var terms = q.split(/\s+/);
+      var ranked = all
+        .map(function (d) { return { doc: d, s: score(d, terms) }; })
+        .filter(function (r) { return r.s > 0; })
+        .sort(function (a, b) { return b.s - a.s; })
+        .slice(0, 8)
+        .map(function (r) { return r.doc; });
+      if (!ranked.length) { note("No posts match “" + input.value.trim() + "”."); return; }
+      render(ranked);
+    });
+  }
+
+  function move(step) {
+    if (!hits.length) return;
+    if (active > -1) hits[active].classList.remove("is-active");
+    active = (active + step + hits.length) % hits.length;
+    hits[active].classList.add("is-active");
+    hits[active].scrollIntoView({ block: "nearest" });
+  }
+
+  input.addEventListener("input", run);
+  input.addEventListener("focus", function () { load(); if (input.value.trim().length > 1) run(); });
+
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "ArrowDown") { e.preventDefault(); move(1); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); move(-1); }
+    else if (e.key === "Enter" && active > -1) { e.preventDefault(); hits[active].click(); }
+    else if (e.key === "Escape") { input.value = ""; close(); input.blur(); }
+  });
+
+  document.addEventListener("click", function (e) { if (!root.contains(e.target)) close(); });
+
+  /* "/" focuses the box, the way most documentation sites behave. */
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "/" || e.metaKey || e.ctrlKey || e.altKey) return;
+    var el = document.activeElement;
+    if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable)) return;
+    e.preventDefault();
+    input.focus();
+  });
+})();
+</script>

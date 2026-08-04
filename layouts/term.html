@@ -1,0 +1,15 @@
+{{ define "main" }}
+<div class="wrap">
+  <header class="page-head">
+    <p class="page-eyebrow">{{ if eq .Data.Plural "authors" }}Posts by{{ else }}Tagged{{ end }}</p>
+    <h1>{{ .Title }}</h1>
+    <p class="page-lede">{{ len .Pages }} post{{ if ne (len .Pages) 1 }}s{{ end }}</p>
+  </header>
+
+  {{- $paginator := .Paginate .Pages }}
+  <div class="card-grid">
+    {{- range $paginator.Pages }}{{ partial "post-card.html" . }}{{ end }}
+  </div>
+  {{ partial "pagination.html" . }}
+</div>
+{{ end }}

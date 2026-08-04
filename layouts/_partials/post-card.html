@@ -1,0 +1,22 @@
+{{- $cover := partial "image-url.html" (dict "page" . "src" .Params.image "spec" "720x webp q82") -}}
+
+<article class="post-card{{ if not $cover }} no-cover{{ end }}">
+  {{- with $cover }}
+  <a class="card-cover" href="{{ $.RelPermalink }}" tabindex="-1" aria-hidden="true">
+    <img src="{{ . }}" alt="" loading="lazy" decoding="async">
+  </a>
+  {{- end }}
+
+  <div class="card-body">
+    <h2 class="card-title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+    {{ partial "post-meta.html" . }}
+    <p class="card-summary">{{ with .Params.summary }}{{ . }}{{ else }}{{ .Summary }}{{ end }}</p>
+    {{- with .Params.tags }}
+    <ul class="tag-list">
+      {{- range . }}
+      <li><a href="{{ (printf "tags/%s" (. | urlize)) | relURL }}">{{ . }}</a></li>
+      {{- end }}
+    </ul>
+    {{- end }}
+  </div>
+</article>

@@ -1,0 +1,11 @@
+{{- /*
+  Callout box.
+  Usage: {{< note type="warning" title="Heads up" >}} body markdown {{< /note >}}
+  Types: info (default), tip, warning, caution.
+*/ -}}
+{{- $type := .Get "type" | default "info" -}}
+{{- $title := .Get "title" | default (title $type) -}}
+<div class="callout callout-{{ $type }}">
+  <p class="callout-title">{{ $title }}</p>
+  <div class="callout-body">{{ .Inner | markdownify }}</div>
+</div>

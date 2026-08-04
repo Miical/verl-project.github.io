@@ -1,0 +1,86 @@
+baseURL = "https://verl-project.github.io/"
+locale = "en-us"
+title = "verl Blog"
+copyright = "verl-project"
+enableRobotsTXT = true
+enableGitInfo = false
+
+# Posts dated in the future stay unpublished until their date arrives, so a PR
+# can be merged ahead of an embargoed announcement.
+buildFuture = false
+
+[pagination]
+  pagerSize = 10
+
+[taxonomies]
+  tag = "tags"
+  author = "authors"
+
+[params]
+  description = "verl is a flexible, efficient and production-ready RL training library for large language models (LLMs)."
+  dateFormat = "Jan 2, 2006"
+
+[params.repo]
+  main = "https://github.com/verl-project/verl"
+  blog = "https://github.com/verl-project/verl-project.github.io"
+  docs = "https://verl.readthedocs.io/en/latest/"
+
+[[params.social]]
+  name = "GitHub"
+  url = "https://github.com/verl-project/verl"
+  icon = "github"
+
+[[params.social]]
+  name = "Documentation"
+  url = "https://verl.readthedocs.io/en/latest/"
+  icon = "book"
+
+[[params.social]]
+  name = "RSS"
+  url = "index.xml"
+  icon = "rss"
+
+[[menus.main]]
+  name = "Posts"
+  pageRef = "/posts"
+  weight = 10
+
+[[menus.main]]
+  name = "Tags"
+  pageRef = "/tags"
+  weight = 20
+
+[[menus.main]]
+  name = "Write for us"
+  pageRef = "/contribute"
+  weight = 30
+
+[markup]
+  [markup.goldmark.renderer]
+    # Required so posts can drop in raw HTML for tables, videos and figures.
+    unsafe = true
+  [markup.goldmark.extensions.passthrough]
+    # Hand LaTeX through untouched so KaTeX can render it in the browser.
+    enable = true
+    [markup.goldmark.extensions.passthrough.delimiters]
+      block = [['\[', '\]'], ['$$', '$$']]
+      inline = [['\(', '\)']]
+  [markup.highlight]
+    noClasses = false
+    lineNumbersInTable = true
+    tabWidth = 4
+  [markup.tableOfContents]
+    startLevel = 2
+    endLevel = 3
+    ordered = false
+
+[outputs]
+  # json is the search index read by _partials/search.html.
+  home = ["html", "rss", "json"]
+  section = ["html", "rss"]
+
+[services.rss]
+  limit = 30
+
+[minify]
+  disableXML = true

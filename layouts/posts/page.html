@@ -1,0 +1,68 @@
+{{ define "main" }}
+{{- $cover := partial "image-url.html" (dict "page" . "src" .Params.image) -}}
+
+<article class="post">
+  <header class="post-header wrap-narrow">
+    {{- with .Params.tags }}
+    <ul class="tag-list tag-list-lead">
+      {{- range . }}
+      <li><a href="{{ (printf "tags/%s" (. | urlize)) | relURL }}">{{ . }}</a></li>
+      {{- end }}
+    </ul>
+    {{- end }}
+    <h1 class="post-title">{{ .Title }}</h1>
+    {{- with .Params.summary }}<p class="post-summary">{{ . }}</p>{{ end }}
+    {{ partial "post-meta.html" . }}
+  </header>
+
+  {{- with $cover }}
+  <figure class="post-cover wrap">
+    <img src="{{ . }}" alt="{{ $.Title }}" loading="eager" decoding="async">
+  </figure>
+  {{- end }}
+
+  <div class="wrap post-layout">
+    {{- if and (gt (len .TableOfContents) 60) (ne .Params.toc false) }}
+    <aside class="post-toc" aria-label="On this page">
+      <h2>On this page</h2>
+      {{ .TableOfContents }}
+    </aside>
+    {{- end }}
+
+    <div class="post-content">
+      {{ .Content }}
+
+      <hr class="post-rule">
+
+      <footer class="post-footer">
+        <p class="post-edit">
+          <a href="{{ site.Params.repo.blog }}/edit/main/content/{{ .File.Path }}" rel="noopener">
+            {{ partial "icon.html" "edit" }}Suggest an edit to this post
+          </a>
+        </p>
+        <p class="post-cite">&copy; {{ .Date.Year }}
+          {{- with .Params.authors }} {{ delimit . ", " " and " }}{{ else }} verl-project{{ end }}.
+          All rights reserved.</p>
+      </footer>
+    </div>
+  </div>
+
+  {{- $prev := .PrevInSection }}{{ $next := .NextInSection }}
+  {{- if or $prev $next }}
+  <nav class="post-nav wrap" aria-label="More posts">
+    {{- with $next }}
+    <a class="post-nav-item" href="{{ .RelPermalink }}">
+      <span class="post-nav-label">{{ partial "icon.html" "arrow-left" }}Newer post</span>
+      <span class="post-nav-title">{{ .Title }}</span>
+    </a>
+    {{- else }}<span></span>{{ end }}
+    {{- with $prev }}
+    <a class="post-nav-item align-end" href="{{ .RelPermalink }}">
+      <span class="post-nav-label">Older post{{ partial "icon.html" "arrow-right" }}</span>
+      <span class="post-nav-title">{{ .Title }}</span>
+    </a>
+    {{- end }}
+  </nav>
+  {{- end }}
+</article>
+{{ end }}
