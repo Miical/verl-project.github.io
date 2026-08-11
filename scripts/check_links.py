@@ -38,7 +38,10 @@ class LinkCollector(html.parser.HTMLParser):
 def resolve(root: pathlib.Path, page: pathlib.Path, target: str) -> pathlib.Path:
     """Map a URL onto a path inside the output directory. Both root and page are
     absolute, so the result is comparable against root without further work."""
-    path = urllib.parse.urlsplit(target).path
+    # Generated asset URLs may contain percent-encoded characters (for
+    # example, ``%20`` for a space in a page-bundle filename). Decode the URL
+    # path before mapping it back to the corresponding file on disk.
+    path = urllib.parse.unquote(urllib.parse.urlsplit(target).path)
     if not path:
         return page
     if path.startswith("/"):
