@@ -23,19 +23,22 @@ toc: true
 What if you could keep a Tinker Cookbook training loop exactly where it is,
 but run the heavy lifting on your own GPUs?
 
-That is what `verl-tinker` makes possible. Point an existing Tinker or Tinker
-Cookbook program at a local HTTP endpoint and it can drive supervised fine
-tuning (SFT), reinforcement learning (RL), online and offline distillation,
-checkpointing, and rollout on verl-managed workers. The client does not need
-to know about Ray, vLLM, VeXact, or even verl itself.
+That is what `verl-tinker` makes possible. The official Tinker SDK and nearly
+the full range of Tinker Cookbook recipes work as they are; in most cases, the
+only client-side change is overriding the base URL. Point the program at a
+local HTTP endpoint and it can drive supervised fine tuning (SFT),
+reinforcement learning (RL), online and offline distillation, checkpointing,
+and rollout on verl-managed workers.
 
 In other words: **the experiment loop stays simple; the infrastructure becomes
 yours.**
 
 The implementation is available now in the
 [`verl_tinker` recipe](https://github.com/verl-project/verl-recipe/tree/main/verl_tinker).
-It is a Tinker-compatible server backed by Ray Serve, FastAPI, verl workers,
-and vLLM or VeXact rollout engines.
+It is deliberately lightweight: a thin forwarding layer exposes a
+Tinker-compatible API, while presets make it easy to launch the server in one
+step. Underneath, workloads run on mature, production-tested verl, VeOmni, and
+vLLM configurations.
 
 ## Keep the loop. Bring the infrastructure.
 
@@ -53,10 +56,11 @@ concise Cookbook loop and choose the cluster, model weights, inference engine,
 parallelism strategy, and storage behind it. The client environment needs only
 `tinker` and `tinker-cookbook`; the server owns the distributed runtime.
 
-This is more than a convenience wrapper. Tinker and verl disagree—in useful
-ways—about data layouts, concurrency, and model identity. Bridging them means
-making those differences invisible to the training loop without making them
-ambiguous to the server.
+The bridge stays intentionally small. It forwards Tinker operations into the
+backend and handles the compatibility details at the API boundary; it does not
+reimplement the training or inference stack. The distributed execution path
+comes from the same proven backend configurations used by verl, VeOmni, and
+vLLM workloads.
 
 ## Start a workload in minutes
 
@@ -83,15 +87,16 @@ uv run run_single_test.py \
   --test-name sft_tulu3
 ```
 
-That is the whole handoff. The Cookbook recipe issues familiar Tinker calls;
-the server turns them into distributed verl work.
+That is the whole handoff. For an existing SDK or Cookbook workload, setting
+`TINKER_BASE_URL` is usually all that is required. The recipe issues familiar
+Tinker calls, and the server forwards them to the distributed backend.
 
 The bundled [client examples](https://github.com/verl-project/verl-recipe/tree/main/verl_tinker/client_examples)
 are intentionally lightweight wrappers around recipes from the
 [Tinker Cookbook](https://github.com/thinking-machines-lab/tinker-cookbook).
-They demonstrate how to connect familiar workloads—including SFT, supervised
-distillation, GSM8K RL, SFT followed by RL, and single- or multi-teacher
-on-policy distillation—to a `verl-tinker` server.
+Together they cover most official Cookbook recipe patterns, including SFT,
+supervised distillation, GSM8K RL, SFT followed by RL, and single- or
+multi-teacher on-policy distillation.
 
 They are examples, not a required client layer. Because `verl-tinker` speaks
 the Tinker API, you can point your own program built with the Tinker SDK at the
@@ -106,22 +111,20 @@ Three quick-start configurations cover the common shapes:
 
 ## What happens after the HTTP call?
 
-A request passes through four layers:
+![Architecture of the request and response flow from a Tinker Cookbook client through the verl-tinker server to the verl backend](diagram.png)
+
+A request passes through three layers:
 
 ```text
 Tinker / Tinker Cookbook client
               |
               | Tinker-compatible HTTP
               v
-FastAPI routes on one Ray Serve deployment
+Thin Tinker-compatible forwarding layer
               |
-              | request scheduling and state checks
+              | preset-backed server configuration
               v
-Tinker operations and datum translation
-              |
-              | verl TensorDict / generation request
-              v
-verl actor + optional rollout, reference, and teacher workers
+verl / VeOmni training + vLLM rollout workers
 ```
 
 
