@@ -2,8 +2,8 @@
 title: "Introducing verl-tinker: Your Tinker loop, your GPUs"
 date: 2026-08-11
 authors:
-  - "Tianle Zhong*"
-  - "Huaye Zeng*"
+  - "Tianle Zhong"
+  - "Huaye Zeng"
   - "Xibin Wu"
   - "Siping Tao"
   - "Peng Wu"
