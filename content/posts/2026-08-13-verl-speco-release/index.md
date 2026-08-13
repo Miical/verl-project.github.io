@@ -3,6 +3,8 @@ title: "Faster Draft Model Training: verl-SpeCo 0.1.0 Adds Native DSpark Support
 date: 2026-08-13
 authors:
   - "PeiXiang Tan"
+author_links:
+  "PeiXiang Tan": "https://github.com/tpx818"
 summary: "verl-SpeCo 0.1.0 adds native DSpark support and standalone draft model training, with reusable feature storage, seven algorithm backends, vLLM/SGLang integration, and GPU/Ascend NPU support."
 image: "verl-sepco.png"
 tags:

@@ -8,7 +8,11 @@
   <span class="meta-authors">
     {{ partial "icon.html" "users" }}
     {{- range $i, $a := . }}{{ if $i }}, {{ end -}}
-      <a href="{{ (printf "authors/%s" ($a | urlize)) | relURL }}">{{ $a }}</a>
+      {{- $href := (printf "authors/%s" ($a | urlize)) | relURL -}}
+      {{- with $.Params.author_links }}
+        {{- with index . $a }}{{ $href = . }}{{ end }}
+      {{- end }}
+      <a href="{{ $href }}">{{ $a }}</a>
     {{- end }}
   </span>
   {{- end }}
