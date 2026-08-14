@@ -9,3 +9,6 @@ hugo_stats.json
 .idea/
 .vscode/
 *.swp
+
+# Python cache
+__pycache__/
